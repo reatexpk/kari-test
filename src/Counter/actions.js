@@ -1,6 +1,11 @@
-export default function addCount(count) {
+export function increment() {
   return {
-    type: 'ADD_VALUE',
-    count,
+    type: 'INCREMENT',
+  };
+}
+
+export function decrement() {
+  return {
+    type: 'DECREMENT',
   };
 }

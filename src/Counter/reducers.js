@@ -2,8 +2,10 @@ import { combineReducers } from 'redux';
 
 const counter = (state = { count: 0 }, action) => {
   switch (action.type) {
-    case 'ADD_VALUE':
-      return { ...state, count: action.count };
+    case 'INCREMENT':
+      return { ...state, count: state.count + 1 };
+    case 'DECREMENT':
+      return { ...state, count: state.count - 1 };
     default:
       return state;
   }

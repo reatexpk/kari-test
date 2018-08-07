@@ -6,6 +6,7 @@ import Input from './Input';
 
 const StyledCounter = styled.div`
   margin-top: 200px;
+  box-sizing: border-box;
   font-family: 'Roboto', sans-serif;
 `;
 

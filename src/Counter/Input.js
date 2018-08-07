@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { connect } from 'react-redux';
-import addCount from './actions';
+import { increment, decrement } from './actions';
 
 const Container = styled.div`
   display: flex;
@@ -13,6 +13,7 @@ const StyledInput = styled.input`
 `;
 const StyledButton = styled.button`
   margin-left: 5px;
+  width: 70px;
 `;
 const Error = styled.p`
   margin-top: 5px;
@@ -22,14 +23,40 @@ const Error = styled.p`
 
 class Input extends React.Component {
   state = {
-    count: 0,
+    inputValue: 0,
     hasErrored: false,
+    counterId: null,
   };
 
   handleClick = () => {
-    const { count } = this.state;
-    const { addCountToStore } = this.props;
-    addCountToStore(count);
+    const { incrementToStore, decrementToStore } = this.props;
+    const { inputValue, counterId } = this.state;
+    if (counterId === null) {
+      const currentCounterId = setInterval(() => {
+        const { counterId: _counterId } = this.state;
+        const { count } = this.props;
+        if (inputValue > count) incrementToStore();
+        if (inputValue < count) decrementToStore();
+        if (inputValue === count) {
+          this.setState(
+            {
+              counterId: null,
+            },
+            clearInterval(_counterId),
+          );
+        }
+      }, 30);
+      this.setState({
+        counterId: currentCounterId,
+      });
+    } else {
+      this.setState(
+        {
+          counterId: null,
+        },
+        clearInterval(counterId),
+      );
+    }
   };
 
   handleChange = (e) => {
@@ -44,24 +71,24 @@ class Input extends React.Component {
       });
     }
     this.setState({
-      count: value,
+      inputValue: value,
     });
   };
 
   render() {
-    const { hasErrored } = this.state;
+    const { hasErrored, counterId } = this.state;
     return (
       <React.Fragment>
         <Container>
           <StyledInput type="text" onChange={this.handleChange} />
           {hasErrored && (
           <StyledButton disabled>
-GO
+            {counterId ? 'STOP' : 'START'}
           </StyledButton>
           )}
           {hasErrored || (
             <StyledButton type="button" onClick={this.handleClick}>
-              GO
+              {counterId ? 'STOP' : 'START'}
             </StyledButton>
           )}
         </Container>
@@ -75,15 +102,24 @@ You must specify a number
   }
 }
 
+function mapStateToProps(state) {
+  return {
+    count: state.counter.count,
+  };
+}
+
 function mapDispatchToProps(dispatch) {
   return {
-    addCountToStore: (count) => {
-      dispatch(addCount(count));
+    incrementToStore: (count) => {
+      dispatch(increment(count));
+    },
+    decrementToStore: (count) => {
+      dispatch(decrement(count));
     },
   };
 }
 
 export default connect(
-  null,
+  mapStateToProps,
   mapDispatchToProps,
 )(Input);
